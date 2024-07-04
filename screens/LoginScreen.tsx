@@ -1,5 +1,6 @@
 import { Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { stylesGlobal } from '../theme/appTheme'
 
 export default function LoginScreen({navigation}:any) {
   return (
@@ -9,7 +10,7 @@ export default function LoginScreen({navigation}:any) {
        style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
       >
       </ImageBackground>
-      <Text>INICIO DE SESION</Text>
+      <Text style={styles.text}>INICIO DE SESION</Text>
       <TextInput
         placeholder='Ingresar Correo'
         keyboardType='email-address'
@@ -18,17 +19,19 @@ export default function LoginScreen({navigation}:any) {
         placeholder='Ingresar Contraseña'
         secureTextEntry
       />
-      <TouchableOpacity>
-        <Text>Ingresar</Text>
+      <View style={stylesGlobal.btn}>
+      <TouchableOpacity onPress={()=> navigation.navigate('BottomTab')}>
+        <Text style={styles.text}>Ingresar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
-        <Text>Registrar</Text>
+      <TouchableOpacity onPress={()=> navigation.navigate('BottomTab')}>
+        <Text style={styles.text}>Registrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity>
-      <Text>Regresar</Text>
+      <TouchableOpacity onPress={()=> navigation.navigate('Registro')}>
+      <Text style={styles.text}>Regresar</Text>
       </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -36,6 +39,8 @@ export default function LoginScreen({navigation}:any) {
 const styles = StyleSheet.create({
   container:{
     flex:1,
+    color:'white',
+    fontSize:20
   },
 
   imgbackground: {
@@ -50,5 +55,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  text:{
+    color:'white',
+    fontSize:20
+  }
 
 })
