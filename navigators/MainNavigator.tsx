@@ -19,7 +19,7 @@ function MyTabs() {
       <Tab.Screen name="Login" component={LoginScreen} />
       <Tab.Screen name="Offline" component={OfflineScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
-      <Tab.Screen name="Perfil" component={RegistroScreen} />
+      <Tab.Screen name="Registro" component={RegistroScreen} />
     </Tab.Navigator>
   );
 }
