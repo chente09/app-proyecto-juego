@@ -10,25 +10,33 @@ export default function LoginScreen({navigation}:any) {
        style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
       >
       </ImageBackground>
-      <Text style={styles.text}>INICIO DE SESION</Text>
+      <Text style={styles.titulo}>INICIO DE SESION</Text>
       <TextInput
         placeholder='Ingresar Correo'
         keyboardType='email-address'
+        style={styles.input}
       />
       <TextInput
         placeholder='Ingresar Contraseña'
         secureTextEntry
+        style={styles.input}
       />
-      <View style={stylesGlobal.btn}>
-      <TouchableOpacity onPress={()=> navigation.navigate('BottomTab')}>
+      <View >
+      <TouchableOpacity 
+        style={stylesGlobal.btn}
+        onPress={()=> navigation.navigate('BottomTab')}>
         <Text style={styles.text}>Ingresar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={()=> navigation.navigate('BottomTab')}>
+      <TouchableOpacity 
+        style={stylesGlobal.btn}
+        onPress={()=> navigation.navigate('BottomTab')}>
         <Text style={styles.text}>Registrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={()=> navigation.navigate('Registro')}>
+      <TouchableOpacity 
+        style={stylesGlobal.btn}
+        onPress={()=> navigation.navigate('Registro')}>
       <Text style={styles.text}>Regresar</Text>
       </TouchableOpacity>
       </View>
@@ -40,7 +48,9 @@ const styles = StyleSheet.create({
   container:{
     flex:1,
     color:'white',
-    fontSize:20
+    fontSize:20, 
+    alignItems:'center',
+    justifyContent:'center'
   },
 
   imgbackground: {
@@ -58,6 +68,23 @@ const styles = StyleSheet.create({
   text:{
     color:'white',
     fontSize:20
-  }
+  },
 
+  input:{
+    width: "80%",
+    height: 45,
+    marginBottom: 30,
+    borderRadius: 10,
+    fontSize: 18,
+    backgroundColor: "#eee",
+    paddingLeft: 20,
+  },
+
+  titulo: {
+    fontSize: 30,
+    textAlign: "center",
+    marginTop: 130,
+    marginBottom: 50,
+    color:'white'
+  }
 })

@@ -54,12 +54,14 @@ export const stylesGlobal=StyleSheet.create({
         fontWeight: 'bold',
         color: '#000'
     },
-    btn:{
-        backgroundColor:'#c8b9b1f7',
-        borderRadius:40,
-        height:20,
-        width:'60%',
-        alignItems:'center',
-        justifyContent:'center',
+    btn: {
+        width: 100,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
+        marginVertical: 10,
+        borderRadius: 5,
+        backgroundColor: 'green'
       },
+    
 })
