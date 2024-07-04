@@ -27,8 +27,8 @@ const Tab = createBottomTabNavigator()
 function MyTabs(){
     return(
         <Tab.Navigator>
-            <Tab.Screen name="Bienvenida" component={MyDrawer} />
-            <Tab.Screen name="Bienvenida2" component={MyDrawer} />
+            <Tab.Screen name="Bienvenida" component={Inicio} />
+            <Tab.Screen name="Bienvenida2" component={Jugar} />
             <Tab.Screen name="Game" component={MyDrawer2} />
             <Tab.Screen name="Offline" component={OfflineScreen} />
             <Tab.Screen name="Drawer" component={MyDrawer} />
@@ -40,6 +40,18 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import ConfigScreen from "../screens/ConfigScreen";
 
 const Drawer = createDrawerNavigator();
+
+function Jugar(){
+  return(
+    <Bienvenida2Screen/>
+  );
+}
+
+function Inicio(){
+  return(
+    <BienvenidaScreen/>
+  );
+}
 
 function MyDrawer() {
   return (
