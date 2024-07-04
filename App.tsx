@@ -1,12 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import Navegador from './navigators/MainNavigator';
+import NavegadorBotton from './navigators/BottomNavigator';
+
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Navegador/>
-    </View>
+   <NavegadorBotton/>
   );
 }
 
