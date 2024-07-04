@@ -1,31 +1,54 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 
 export default function LoginScreen({navigation}:any) {
   return (
-    <View>
-      <Text>LoginScreen</Text>
-      <TouchableOpacity style={styles.btn} onPress={()=> navigation.navigate('BottomTab')}>
-        <View >
-          <Text style={{fontSize:15, marginHorizontal:20}}>INGRESAR</Text> 
-        </View>      
+    <View style={styles.container}>
+      <ImageBackground
+       source={require("../assets/image/iniciosesion.jpeg")}
+       style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
+      >
+      </ImageBackground>
+      <Text>INICIO DE SESION</Text>
+      <TextInput
+        placeholder='Ingresar Correo'
+        keyboardType='email-address'
+      />
+      <TextInput
+        placeholder='Ingresar Contraseña'
+        secureTextEntry
+      />
+      <TouchableOpacity>
+        <Text>Ingresar</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.btn} onPress={()=> navigation.navigate('Registro')}>
-        <View >
-          <Text style={{fontSize:15, marginHorizontal:20}}>RGISTRARSE</Text>
-        </View>
+
+      <TouchableOpacity>
+        <Text>Registrar</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+      <Text>Regresar</Text>
       </TouchableOpacity>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  btn:{
-    backgroundColor:'#c8b9b1f7',
-    borderRadius:40,
-    height:20,
-    width:'60%',
-    alignItems:'center',
-    justifyContent:'center'
+  container:{
+    flex:1,
   },
+
+  imgbackground: {
+    width: Dimensions .get("screen").width, //for full screen
+    height: Dimensions.get("screen").height, //for full screen
+    resizeMode:"cover",
+  },
+  fixed: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+
 })
