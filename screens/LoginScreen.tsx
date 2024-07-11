@@ -1,8 +1,49 @@
-import { Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
 import { stylesGlobal } from '../theme/appTheme'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../config/Config'
 
 export default function LoginScreen({navigation}:any) {
+
+  const [correo, setcorreo] = useState('')
+  const [contrasenia, setcontrasenia] = useState('')
+
+  function login(){
+    signInWithEmailAndPassword(auth, correo, contrasenia)
+    .then((userCredential) => {
+      // Signed in 
+      const user = userCredential.user;
+      // ...
+      console.log('Ingreso Exitoso');
+      navigation.navigate('BottomTab')
+
+    })
+    .catch((error) => {
+      console.log(error.code);
+    
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      switch (errorCode) {
+        case "auth/invalid/credential":
+          Alert.alert("Error", "Las credenciales son incorrectas");
+          break;
+        case "auth/missing-password":
+          Alert.alert("Error", "Falta contraseña");
+          break;
+        case "auth/invalid-email":
+          Alert.alert("Error", "Ingrese un correo valido");
+          break;
+        default:
+          Alert.alert("Error", "Contactenos");
+          break;
+      }
+    });
+
+    setcorreo('')
+    setcontrasenia('')
+  }
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -15,28 +56,32 @@ export default function LoginScreen({navigation}:any) {
         placeholder='Ingresar Correo'
         keyboardType='email-address'
         style={styles.input}
+        onChangeText={(texto)=>setcorreo(texto)}
+        value={correo}
       />
       <TextInput
         placeholder='Ingresar Contraseña'
         secureTextEntry
         style={styles.input}
+        onChangeText={(texto)=>setcontrasenia(texto)}
+        value={contrasenia}
       />
       <View >
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('BottomTab')}>
+        onPress={()=> login()}>
         <Text style={styles.text}>Ingresar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('BottomTab')}>
+        onPress={()=> navigation.navigate('Registro')}>
         <Text style={styles.text}>Registrar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('Registro')}>
+        onPress={()=> navigation.navigate('')}>
       <Text style={styles.text}>Regresar</Text>
       </TouchableOpacity>
       </View>
@@ -85,6 +130,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 130,
     marginBottom: 50,
-    color:'white'
+    color:'#ffb900'
   }
 })

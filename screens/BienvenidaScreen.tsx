@@ -94,8 +94,12 @@ const styles = StyleSheet.create({
     color: "#FF0800",
     textAlign: 'center',
     marginBottom: 10,
+<<<<<<< HEAD
     paddingHorizontal: 40,
     fontFamily: 'pixel'
+=======
+    paddingHorizontal:40,
+>>>>>>> 51a0f273cb1a978474afd757386bdae33540b4d8
   },
   textbtn: {
     color: 'white',
