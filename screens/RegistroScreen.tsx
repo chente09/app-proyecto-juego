@@ -1,14 +1,15 @@
 import 'react-native-gesture-handler';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import Navegador from '../navigators/BottomNavigator';
 
 export default function RegistroScreen({navigation}:any) {
   return (
     <View>
       <Text>RegistroScreen</Text>
-      <TouchableOpacity style={styles.btn} onPress={()=> navigation.navigate('BottomTab')}>
+      <TouchableOpacity style={styles.btn} onPress={()=> navigation.navigate('Login')}>
         <View >
-          <Text style={{fontSize:15, marginHorizontal:20}}>INGRESAR</Text>
+          <Text style={{fontSize:15, marginHorizontal:20}}>REGISTRAR</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.btn} onPress={()=> navigation.navigate('Login')}>

@@ -1,6 +1,7 @@
 import { Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import { stylesGlobal } from '../theme/appTheme'
+import Navegador from '../navigators/BottomNavigator';
 
 export default function LoginScreen({navigation}:any) {
   return (
@@ -24,21 +25,16 @@ export default function LoginScreen({navigation}:any) {
       <View >
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('BottomTab')}>
+        onPress={()=> navigation.navigate('Bienvenida2')}>
         <Text style={styles.text}>Ingresar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('BottomTab')}>
+        onPress={()=> navigation.navigate('Registro')}>
         <Text style={styles.text}>Registrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('Registro')}>
-      <Text style={styles.text}>Regresar</Text>
-      </TouchableOpacity>
       </View>
     </View>
   )
