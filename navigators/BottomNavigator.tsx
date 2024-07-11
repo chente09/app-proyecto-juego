@@ -9,6 +9,17 @@ import GameScreen from "../screens/GameScreen";
 import OfflineScreen from "../screens/OfflineScreen";
 import PerfilScreen from "../screens/PerfilScreen";
 
+const Stack1 = createStackNavigator();
+
+function App() {
+  return (
+    <Stack.Navigator initialRouteName="Bienvenido">
+        <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
+        <Stack.Screen name="Game" getComponent={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+    </Stack.Navigator>
+  );
+}
+
 
 ///////////////STACk/////////////////
 const Stack= createStackNavigator()
@@ -19,7 +30,8 @@ function MyStack(){
             <Tab.Screen name="Login" component={LoginScreen} />
             <Tab.Screen name="Bienvenida2" component={Bienvenida2Screen} />
             <Tab.Screen name="Registro" component={RegistroScreen}/>
-            <Stack.Screen name="BottomTab" component={MyTabs}/>
+            <Tab.Screen name="Bienvenido" component={BienvenidaScreen}/>
+            {/* <Stack.Screen name="BottomTab" component={MyTabs}/> */}
         </Stack.Navigator>
     )
 }
@@ -29,7 +41,7 @@ function MyTabs(){
     return(
         <Tab.Navigator>
             <Tab.Screen name="Bienvenida" component={BienvenidaScreen} />
-            <Tab.Screen name="Game" component={GameScreen} />
+            <Tab.Screen name="Game" getComponent={GameScreen} />
             <Tab.Screen name="Offline" component={OfflineScreen} />
             <Tab.Screen name="Perfil" component={PerfilScreen} />
         </Tab.Navigator>
@@ -42,7 +54,7 @@ function MyTabs(){
 export default function Navegador(){
     return(
         <NavigationContainer>
-            <MyStack/>
+            <App/>
         </NavigationContainer>
     )
 }
