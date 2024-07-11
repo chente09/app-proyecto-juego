@@ -113,7 +113,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
     paddingHorizontal:40,
-    fontFamily:'pixel'
   },
   textbtn: {
     color: 'white',
