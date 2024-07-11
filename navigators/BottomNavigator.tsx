@@ -9,6 +9,17 @@ import GameScreen from "../screens/GameScreen";
 import OfflineScreen from "../screens/OfflineScreen";
 import PerfilScreen from "../screens/PerfilScreen";
 
+const Stack1 = createStackNavigator();
+
+function App() {
+  return (
+    <Stack.Navigator initialRouteName="Bienvenido">
+        <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
+        <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+    </Stack.Navigator>
+  );
+}
+
 
 ///////////////STACk/////////////////
 const Stack= createStackNavigator()
@@ -18,7 +29,8 @@ function MyStack(){
         <Stack.Navigator>
             <Tab.Screen name="Login" component={LoginScreen} />
             <Tab.Screen name="Registro" component={RegistroScreen}/>
-            <Stack.Screen name="BottomTab" component={MyTabs}/>
+            <Tab.Screen name="Bienvenido" component={BienvenidaScreen}/>
+            {/* <Stack.Screen name="BottomTab" component={MyTabs}/> */}
         </Stack.Navigator>
     )
 }
@@ -71,7 +83,7 @@ function MyDrawer2() {
 export default function Navegador(){
     return(
         <NavigationContainer>
-            <MyStack/>
+            <App/>
         </NavigationContainer>
     )
 }
