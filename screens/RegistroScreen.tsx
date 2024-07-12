@@ -1,11 +1,11 @@
 import 'react-native-gesture-handler';
-import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { stylesGlobal } from '../theme/appTheme';
-import { TextInput } from 'react-native-gesture-handler';
+import Navegador from '../navigators/BottomNavigator';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../config/Config';
 import { ref, set } from 'firebase/database';
+import { stylesGlobal } from '../theme/appTheme';
 
 export default function RegistroScreen({navigation}:any) {
   
@@ -59,49 +59,11 @@ export default function RegistroScreen({navigation}:any) {
 
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/image/fondo-bienv2.jpg")}
-        style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
-      >
-      </ImageBackground>
-
-      <Text style={styles.titulo}>Registro</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Ingrese su Nombre'
-        onChangeText={(texto)=>setnombre(texto)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder='Ingrese su Apellido'
-        onChangeText={(texto)=>setapellido(texto)}
-      />
-      <TextInput
-        style={styles.input}
-        keyboardType='numeric'
-        placeholder='Ingrese su Edad'
-        onChangeText={(texto)=>setedad(texto)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder='Ingrese su Usuario'
-        onChangeText={(texto)=>setusuario(texto)}
-      />
-      <TextInput
-        style={styles.input}
-        keyboardType='email-address'
-        placeholder='Ingrese su Correo'
-        onChangeText={(texto)=>setcorreo(texto)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder='Ingrese su Contraseña'
-        onChangeText={(texto)=>setcontrasenia(texto)}
-      />
-      <TouchableOpacity style={stylesGlobal.btn} onPress={()=> registro()}>
+    <View>
+      <Text>RegistroScreen</Text>
+      <TouchableOpacity style={stylesGlobal.btn} onPress={()=> navigation.navigate('Login')}>
         <View >
-          <Text style={styles.text}>Registrar</Text>
+          <Text style={{fontSize:15, marginHorizontal:20}}>REGISTRAR</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={stylesGlobal.btn}onPress={()=> navigation.navigate('Login')}>

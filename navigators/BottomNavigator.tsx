@@ -15,7 +15,7 @@ function App() {
   return (
     <Stack.Navigator initialRouteName="Game">
         <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
-        <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+        <Stack.Screen name="Game" getComponent={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
     </Stack.Navigator>
   );
 }
@@ -26,8 +26,9 @@ const Stack= createStackNavigator()
 
 function MyStack(){
     return(
-        <Stack.Navigator screenOptions={{headerShown:false}}>
-            <Tab.Screen name="Login" component={LoginScreen}/>
+        <Stack.Navigator>
+            <Tab.Screen name="Login" component={LoginScreen} />
+            <Tab.Screen name="Bienvenida2" component={Bienvenida2Screen} />
             <Tab.Screen name="Registro" component={RegistroScreen}/>
             <Tab.Screen name="Bienvenido" component={BienvenidaScreen}/>
             {/* <Stack.Screen name="BottomTab" component={MyTabs}/> */}
@@ -39,47 +40,17 @@ const Tab = createBottomTabNavigator()
 function MyTabs(){
     return(
         <Tab.Navigator>
-            <Tab.Screen name="Bienvenida" component={Inicio} />
-            <Tab.Screen name="Bienvenida2" component={Jugar} />
-            <Tab.Screen name="Game" component={MyDrawer2} />
+            <Tab.Screen name="Bienvenida" component={BienvenidaScreen} />
+            <Tab.Screen name="Game" getComponent={GameScreen} />
             <Tab.Screen name="Offline" component={OfflineScreen} />
-            <Tab.Screen name="Drawer" component={MyDrawer} />
+            <Tab.Screen name="Perfil" component={PerfilScreen} />
         </Tab.Navigator>
     )
 }
 ////////////DRAWER////////////////
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import ConfigScreen from "../screens/ConfigScreen";
 
-const Drawer = createDrawerNavigator();
 
-function Jugar(){
-  return(
-    <Bienvenida2Screen/>
-  );
-}
 
-function Inicio(){
-  return(
-    <BienvenidaScreen/>
-  );
-}
-
-function MyDrawer() {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="Perfil" component={PerfilScreen} />
-    </Drawer.Navigator>
-  );
-}
-function MyDrawer2() {
-    return (
-      <Drawer.Navigator>
-        <Drawer.Screen name="Perfil" component={PerfilScreen} />
-        <Drawer.Screen name="Configuracion" component={ConfigScreen} />
-      </Drawer.Navigator>
-    );
-  }
 export default function Navegador(){
     return(
         <NavigationContainer>
