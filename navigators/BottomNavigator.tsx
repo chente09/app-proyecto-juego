@@ -13,9 +13,9 @@ const Stack1 = createStackNavigator();
 
 function App() {
   return (
-    <Stack.Navigator initialRouteName="Bienvenido">
+    <Stack.Navigator initialRouteName="Game">
         <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
-        <Stack.Screen name="Game" getComponent={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+        <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
     </Stack.Navigator>
   );
 }
@@ -41,8 +41,6 @@ function MyTabs(){
     return(
         <Tab.Navigator>
             <Tab.Screen name="Bienvenida" component={BienvenidaScreen} />
-            <Tab.Screen name="Game" getComponent={GameScreen} />
-            <Tab.Screen name="Offline" component={OfflineScreen} />
             <Tab.Screen name="Perfil" component={PerfilScreen} />
         </Tab.Navigator>
     )
