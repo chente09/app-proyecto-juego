@@ -27,8 +27,8 @@ const mapImages: Record<MapName, any> = {
   jardin: require('../assets/image/fondo-jardin.jpg'),
 };
 
-const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigation: any }) => {
-  const insecto = route.params;
+const GameScreen = ({ navigation }: { navigation: any }) => {
+  const insecto: Insect = { name: 'cucaracha', map: 'jardin' }; // Valores predeterminados
 
   const [objects, setObjects] = useState<Array<{ id: number; img: any; x: number; y: number }>>([]);
   const [score, setScore] = useState(0);
