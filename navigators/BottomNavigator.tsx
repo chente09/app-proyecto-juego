@@ -13,9 +13,9 @@ const Stack1 = createStackNavigator();
 
 function App() {
   return (
-    <Stack.Navigator initialRouteName="Game">
+    <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName="Game">
         <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
-        <Stack.Screen name="Game" Component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+        <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
     </Stack.Navigator>
   );
 }
