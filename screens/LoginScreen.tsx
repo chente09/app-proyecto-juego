@@ -1,8 +1,9 @@
 import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { stylesGlobal } from '../theme/appTheme'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../config/Config'
+import Navegador from '../navigators/BottomNavigator';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/Config';
 
 export default function LoginScreen({navigation}:any) {
 
@@ -69,7 +70,7 @@ export default function LoginScreen({navigation}:any) {
       <View >
       <TouchableOpacity 
         style={stylesGlobal.btn}
-        onPress={()=> login()}>
+        onPress={()=> navigation.navigate('Bienvenida2')}>
         <Text style={styles.text}>Ingresar</Text>
       </TouchableOpacity>
 
@@ -79,11 +80,6 @@ export default function LoginScreen({navigation}:any) {
         <Text style={styles.text}>Registrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('')}>
-      <Text style={styles.text}>Regresar</Text>
-      </TouchableOpacity>
       </View>
     </View>
   )

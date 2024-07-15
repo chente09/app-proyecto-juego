@@ -114,6 +114,12 @@ export default function RegistroScreen({navigation}:any) {
 }
 
 const styles = StyleSheet.create({
+  btn:{
+    backgroundColor:'#c8b9b1f7',
+    borderRadius:40,
+    height:20,
+    width:'60%',
+  },
   container:{
     flex:1,
     color:'white',

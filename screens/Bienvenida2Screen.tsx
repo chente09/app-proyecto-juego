@@ -8,7 +8,7 @@ export default function BienvenidaScreen({navigation}:any) {
   return (
     <ImageBackground source={require('../assets/image/full.jpg')} style={styles.container}>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.btn} onPress={()=>navigation.Navegador('BottomTab')}>
+        <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Game')}>
           <Text style={styles.textbutton}>PLAY</Text>
           <Image style={styles.img2} source={require('../assets/image/INSECT.png')}/>
         </TouchableOpacity>
