@@ -157,6 +157,7 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
 };
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     resizeMode: "cover",

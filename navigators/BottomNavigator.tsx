@@ -13,7 +13,7 @@ const Stack1 = createStackNavigator();
 
 function App() {
   return (
-    <Stack.Navigator initialRouteName="Bienvenido">
+    <Stack.Navigator>
         <Stack.Screen name="Bienvenido" component={BienvenidaScreen} />
         <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
     </Stack.Navigator>
