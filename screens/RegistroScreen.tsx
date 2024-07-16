@@ -21,7 +21,7 @@ export default function RegistroScreen({navigation}:any) {
       const userCredential = await createUserWithEmailAndPassword(auth, correo, contrasenia);
       const user = userCredential.user;
       console.log('Registro Exitoso');
-      
+      Alert.alert('Registro', 'Registro Exitoso')
 
       // Guardar información Firebase
       set(ref(db, 'usuarios/' + usuario), {
