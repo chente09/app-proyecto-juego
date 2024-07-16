@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback  } from 'react';
 import { Image, ImageBackground, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@rneui/base';
 
@@ -39,6 +39,14 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
   const mapImg = selectedMap ? mapImages[selectedMap] : null;
+
+  const togglePause = useCallback(() => {
+    setIsPaused(prevState => !prevState);
+  }, []);
+
+  const handleExit = useCallback(() => {
+    navigation.navigate('Bienvenida2');
+  }, [navigation]);
 
   const onLayout = (event: any) => {
     const { width, height } = event.nativeEvent.layout;
@@ -98,7 +106,7 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
 
   if (!selectedInsect || !selectedMap) {
     return (
-      <View style={styles.selectionScreen}>
+      <ImageBackground source={require('../assets/image/fondo-bienv2.jpg')} style={styles.selectionScreen}>
         <Text style={styles.selectionText}>Selecciona un insecto:</Text>
         <View style={styles.insectOptions}>
           {Object.keys(insectImages).map((insectKey) => {
@@ -138,9 +146,14 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
             </View>
           </>
         )}
-      </View>
+        <Pressable style={styles.btnupsalir} onPress={handleExit}>
+          <Icon name='exit-to-app' type="material" color={'#E74C3C'} />
+          <Text style={styles.textbtn}>Salir</Text>
+        </Pressable>
+      </ImageBackground>
     );
   }
+  
 
   return (
     <ImageBackground source={mapImg} style={styles.container}>
@@ -336,8 +349,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD700',
   },
   insectImage: {
-    width: 50,
-    height: 50,
+    width: 65,
+    height: 65,
   },
   mapOptions: {
     flexDirection: 'row',
