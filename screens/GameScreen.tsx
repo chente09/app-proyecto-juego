@@ -27,8 +27,8 @@ const mapImages: Record<MapName, any> = {
   jardin: require('../assets/image/fondo-jardin.jpg'),
 };
 
-const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigation: any }) => {
-  const insecto = route.params;
+const GameScreen = () => {
+  const [selectedInsect, setSelectedInsect] = useState<Insect | null>(null);
 
   const [objects, setObjects] = useState<Array<{ id: number; img: any; x: number; y: number }>>([]);
   const [score, setScore] = useState(0);
@@ -37,8 +37,8 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
   const [viewDimensions, setViewDimensions] = useState({ width: 0, height: 0 });
   const [isPaused, setIsPaused] = useState(false);
 
-  const insectImg = insectImages[insecto.name];
-  const mapImg = mapImages[insecto.map];
+  const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
+  const mapImg = selectedInsect ? mapImages[selectedInsect.map] : null;
 
   const onLayout = (event: any) => {
     const { width, height } = event.nativeEvent.layout;
@@ -96,6 +96,29 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
     return () => clearInterval(interval);
   }, [isPaused, gameOver, viewDimensions, insectImg]);
 
+  if (!selectedInsect) {
+    return (
+      <View style={styles.selectionScreen}>
+        <Text style={styles.selectionText}>Selecciona un insecto y su mapa:</Text>
+        <View style={styles.insectOptions}>
+          {Object.keys(insectImages).map((insectKey) => {
+            if (insectKey === 'blood') return null;
+            return (
+              <Pressable
+                key={insectKey}
+                style={styles.insectOption}
+                onPress={() => setSelectedInsect({ name: insectKey as InsectName, map: 'hormiguero' })}
+              >
+                <Image source={insectImages[insectKey as InsectName]} style={styles.insectImage} />
+                <Text>{insectKey}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ImageBackground source={mapImg} style={styles.container}>
       <View style={styles.textocontain}>
@@ -111,7 +134,7 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
             <Icon name="play-arrow" type="material" color={'#27AE60'} />
           </Pressable>
         )}
-        <Pressable style={styles.btnupsalir} onPress={() => navigation.navigate('Bienvenido')}>
+        <Pressable style={styles.btnupsalir} onPress={() => setSelectedInsect(null)}>
           <Icon name='stop' type="material" color={'#E74C3C'} />
         </Pressable>
       </View>
@@ -136,7 +159,7 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
                   <Pressable style={styles.btnreinicio} onPress={() => RestartGame()}>
                     <Text style={styles.textbtn}>Reiniciar</Text>
                   </Pressable>
-                  <Pressable style={styles.btnsalir} onPress={() => navigation.navigate('Bienvenido')}>
+                  <Pressable style={styles.btnsalir} onPress={() => setSelectedInsect(null)}>
                     <Text style={styles.textbtn}>Salir</Text>
                   </Pressable>
                 </View>
@@ -157,7 +180,6 @@ const GameScreen = ({ route, navigation }: { route: { params: Insect }; navigati
 };
 
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
     resizeMode: "cover",
@@ -284,6 +306,30 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     elevation: 2,
+  },
+  selectionScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  selectionText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  insectOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  insectOption: {
+    alignItems: 'center',
+    margin: 10,
+  },
+  insectImage: {
+    width: 50,
+    height: 50,
   },
 });
 
