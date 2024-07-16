@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, ImageBackground, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@rneui/base';
 
@@ -7,7 +7,7 @@ type MapName = 'hormiguero' | 'panal' | 'telaraña' | 'estanque' | 'jardin';
 
 interface Insect {
   name: InsectName;
-  map: MapName;
+  map: MapName | null;
 }
 
 const insectImages: Record<InsectName, any> = {
@@ -27,9 +27,9 @@ const mapImages: Record<MapName, any> = {
   jardin: require('../assets/image/fondo-jardin.jpg'),
 };
 
-const GameScreen = () => {
+const GameScreen = ({ navigation }: { navigation: any }) => {
   const [selectedInsect, setSelectedInsect] = useState<Insect | null>(null);
-
+  const [selectedMap, setSelectedMap] = useState<MapName | null>(null);
   const [objects, setObjects] = useState<Array<{ id: number; img: any; x: number; y: number }>>([]);
   const [score, setScore] = useState(0);
   const [time, setTime] = useState(30); // Tiempo en segundos
@@ -38,7 +38,7 @@ const GameScreen = () => {
   const [isPaused, setIsPaused] = useState(false);
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
-  const mapImg = selectedInsect ? mapImages[selectedInsect.map] : null;
+  const mapImg = selectedMap ? mapImages[selectedMap] : null;
 
   const onLayout = (event: any) => {
     const { width, height } = event.nativeEvent.layout;
@@ -96,18 +96,21 @@ const GameScreen = () => {
     return () => clearInterval(interval);
   }, [isPaused, gameOver, viewDimensions, insectImg]);
 
-  if (!selectedInsect) {
+  if (!selectedInsect || !selectedMap) {
     return (
       <View style={styles.selectionScreen}>
-        <Text style={styles.selectionText}>Selecciona un insecto y su mapa:</Text>
+        <Text style={styles.selectionText}>Selecciona un insecto:</Text>
         <View style={styles.insectOptions}>
           {Object.keys(insectImages).map((insectKey) => {
             if (insectKey === 'blood') return null;
             return (
               <Pressable
                 key={insectKey}
-                style={styles.insectOption}
-                onPress={() => setSelectedInsect({ name: insectKey as InsectName, map: 'hormiguero' })}
+                style={[
+                  styles.insectOption,
+                  selectedInsect?.name === insectKey ? styles.selectedOption : null,
+                ]}
+                onPress={() => setSelectedInsect({ name: insectKey as InsectName, map: null })}
               >
                 <Image source={insectImages[insectKey as InsectName]} style={styles.insectImage} />
                 <Text>{insectKey}</Text>
@@ -115,6 +118,26 @@ const GameScreen = () => {
             );
           })}
         </View>
+        {selectedInsect && (
+          <>
+            <Text style={styles.selectionText}>Selecciona un mapa:</Text>
+            <View style={styles.mapOptions}>
+              {Object.keys(mapImages).map((mapKey) => (
+                <Pressable
+                  key={mapKey}
+                  style={[
+                    styles.mapOption,
+                    selectedMap === mapKey ? styles.selectedOption : null,
+                  ]}
+                  onPress={() => setSelectedMap(mapKey as MapName)}
+                >
+                  <Image source={mapImages[mapKey as MapName]} style={styles.mapImage} />
+                  <Text>{mapKey}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        )}
       </View>
     );
   }
@@ -134,8 +157,8 @@ const GameScreen = () => {
             <Icon name="play-arrow" type="material" color={'#27AE60'} />
           </Pressable>
         )}
-        <Pressable style={styles.btnupsalir} onPress={() => setSelectedInsect(null)}>
-          <Icon name='stop' type="material" color={'#E74C3C'} />
+        <Pressable style={styles.btnupsalir} onPress={() => navigation.navigate('Bienvenida2')}>
+          <Icon name='exit-to-app' type="material" color={'#E74C3C'} />
         </Pressable>
       </View>
       <View style={styles.gamewindow} onLayout={onLayout}>
@@ -159,7 +182,7 @@ const GameScreen = () => {
                   <Pressable style={styles.btnreinicio} onPress={() => RestartGame()}>
                     <Text style={styles.textbtn}>Reiniciar</Text>
                   </Pressable>
-                  <Pressable style={styles.btnsalir} onPress={() => setSelectedInsect(null)}>
+                  <Pressable style={styles.btnsalir} onPress={() => navigation.navigate('Bienvenida2')}>
                     <Text style={styles.textbtn}>Salir</Text>
                   </Pressable>
                 </View>
@@ -170,7 +193,7 @@ const GameScreen = () => {
         {isPaused && (
           <View style={styles.pausedmodal}>
             <View style={styles.pausedView}>
-              <Text style={styles.txtpausa}>Pause!</Text>
+              <Text style={styles.txtpausa}>Pausado</Text>
             </View>
           </View>
         )}
@@ -182,28 +205,45 @@ const GameScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    resizeMode: "cover",
   },
   textocontain: {
-    top: 50,
-    width: "100%",
-    height: 50,
-    backgroundColor: "#7FB3D5",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   texto: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: 'black',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    backgroundColor: '#A9CCE3',
+    borderRadius: 5,
+  },
+  btnpause: {
+    padding: 6,
+    borderRadius: 10,
+    backgroundColor: '#000',
+  },
+  btnplay: {
+    padding: 6,
+    borderRadius: 10,
+    backgroundColor: '#000',
+  },
+  btnupsalir: {
+    padding: 6,
+    borderRadius: 10,
+    backgroundColor: '#000',
   },
   gamewindow: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   element: {
-    position: "absolute",
+    position: 'absolute',
   },
   insectimg: {
     width: 50,
@@ -211,112 +251,71 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalView: {
-    width: 300,
-    height: 300,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
-    padding: 35,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    width: 400,
+    height: 500,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   gameovertxt: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 15,
+    fontSize: 35,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
   puntuaciontxt: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 10,
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
   containbtn: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
     marginTop: 20,
   },
   btnreinicio: {
-    backgroundColor: "#27AE60",
-    borderRadius: 10,
     padding: 10,
-    elevation: 2,
+    borderRadius: 5,
+    backgroundColor: '#27AE60',
+    marginBottom: 10,
   },
   btnsalir: {
-    backgroundColor: "#E74C3C",
-    borderRadius: 10,
     padding: 10,
-    elevation: 2,
+    borderRadius: 5,
+    backgroundColor: '#E74C3C',
   },
   textbtn: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFF',
   },
   pausedmodal: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   pausedView: {
-    width: 200,
-    height: 200,
-    backgroundColor: "white",
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFF',
   },
   txtpausa: {
     fontSize: 30,
-    fontWeight: "bold",
-    color: "black",
-  },
-  btnpause: {
-    backgroundColor: "#F1C40F",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-  },
-  btnplay: {
-    backgroundColor: "#27AE60",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-  },
-  btnupsalir: {
-    backgroundColor: "#E74C3C",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
+    fontWeight: 'bold',
+    color: '#000',
   },
   selectionScreen: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#F0F0F0',
   },
   selectionText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginVertical: 10,
   },
   insectOptions: {
     flexDirection: 'row',
@@ -326,11 +325,39 @@ const styles = StyleSheet.create({
   insectOption: {
     alignItems: 'center',
     margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#CCC',
+    backgroundColor: '#FFF',
+  },
+  selectedOption: {
+    borderColor: '#000',
+    backgroundColor: '#FFD700',
   },
   insectImage: {
     width: 50,
     height: 50,
   },
+  mapOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  mapOption: {
+    alignItems: 'center',
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#CCC',
+    backgroundColor: '#FFF',
+  },
+  mapImage: {
+    width: 50,
+    height: 50,
+  },
 });
+
 
 export default GameScreen;

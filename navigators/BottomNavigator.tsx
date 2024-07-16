@@ -22,7 +22,7 @@ function MyStack(){
             <Stack.Screen name="Bienvenida2" component={Bienvenida2Screen} />
             <Stack.Screen name="Registro" component={RegistroScreen}/>
             <Stack.Screen name="Bienvenido" component={BienvenidaScreen}/>
-            <Stack.Screen name="Game" component={GameScreen} initialParams={{ insect: { name: 'hormiga', map: 'hormiguero' } }} />
+            <Stack.Screen name="Game" component={GameScreen} />
         </Stack.Navigator>
     )
 }
