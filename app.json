@@ -4,10 +4,10 @@
     "slug": "app-proyecto-juego",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/image/araña3.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/image/fondo-bienv4r3.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,12 +16,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/image/araña3.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.vnenger.appproyectojuego"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e27a3179-4bbb-45fa-aa07-23ca35e1365c"
+      }
     }
   }
 }
