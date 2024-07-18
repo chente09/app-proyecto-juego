@@ -1,8 +1,8 @@
-import { ImageBackground, StyleSheet, Text, View, Image, Pressable, FlatList } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, Image, Pressable, FlatList, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { FontAwesome } from '@expo/vector-icons';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../config/Config';
 import { get, onValue, ref } from 'firebase/database';
 import { useFonts } from 'expo-font';
@@ -18,6 +18,18 @@ export default function BienvenidaScreen({ navigation }: any) {
   const [levelview, setlevelview] = useState(false);
   const [mapview, setmapview] = useState(false);
   const [scoreview, setscoreview] = useState(false);
+
+  function cerrarSesion() {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        Alert.alert("Mensaje", "Se cerró la sesión");
+        navigation.navigate("Login");
+      })
+      .catch((error) => {
+        Alert.alert(error.code, error.message);
+      });
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -136,6 +148,9 @@ export default function BienvenidaScreen({ navigation }: any) {
         <TouchableOpacity style={styles.btnscore} onPress={() => setscoreview(true)}>
           <Text style={styles.textbtn}>Puntuaciones</Text>
         </TouchableOpacity>
+        <Pressable style={styles.btnsalir} onPress={() => cerrarSesion()}>
+            <Text style={styles.textbtn}>Salir</Text>
+          </Pressable>
       {scoreview && (
         <Modal animationType="slide" transparent={true}>
           <View style={styles.centeredView}>
@@ -366,5 +381,14 @@ const styles = StyleSheet.create({
     color: "#F39C12",
     textAlign: 'center',
     marginBottom: 5
+  },
+  btnsalir: {
+    width: 120,
+    height: 40,
+    backgroundColor: "red",
+    marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
   },
 })
