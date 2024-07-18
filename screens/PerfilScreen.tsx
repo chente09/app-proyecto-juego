@@ -170,13 +170,6 @@ export default function PerfilScreen({ navigation }: any) {
     setLoading(false);
   }
 
-  const [fontsLoaded] = useFonts({
-    pixel: require("../assets/fonts/pixel.ttf"),
-    
-  });
-  if (!fontsLoaded) {
-    return null;
-  }
   return (
     <View style={styles.container}>
       <ImageBackground
