@@ -1,5 +1,5 @@
-import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/Config';
 import { useFonts } from 'expo-font';
@@ -7,12 +7,19 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 export default function LoginScreen({ navigation }: any) {
 
-  const [correo, setcorreo] = useState("")
-  const [contrasenia, setcontrasenia] = useState("")
+  const [correo, setCorreo] = useState("");
+  const [contrasenia, setContrasenia] = useState("");
 
   const [fontsLoaded] = useFonts({
     pixel: require("../assets/fonts/pixel.ttf"),
   });
+
+  useEffect(() => {
+    // Limpiar campos cuando se monta el componente
+    setCorreo("");
+    setContrasenia("");
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -60,8 +67,7 @@ export default function LoginScreen({ navigation }: any) {
       <ImageBackground
         source={require("../assets/image/iniciosesion.jpeg")}
         style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
-      >
-      </ImageBackground>
+      />
       <KeyboardAwareScrollView
         style={styles.keyboardContainer}
         contentContainerStyle={styles.keyboardContentContainer}
@@ -72,7 +78,7 @@ export default function LoginScreen({ navigation }: any) {
         <TextInput
           style={styles.input}
           placeholder="Ingresar Correo"
-          onChangeText={(texto) => setcorreo(texto)}
+          onChangeText={(texto) => setCorreo(texto)}
           keyboardType="email-address"
           autoCapitalize="none"
           value={correo}
@@ -81,12 +87,12 @@ export default function LoginScreen({ navigation }: any) {
         <TextInput
           style={styles.input}
           placeholder="Ingresar Contraseña"
-          onChangeText={(texto) => setcontrasenia(texto)}
+          onChangeText={(texto) => setContrasenia(texto)}
           value={contrasenia}
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.btn} onPress={() => login()}>
+        <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.textbutton}>INGRESAR</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -97,7 +103,7 @@ export default function LoginScreen({ navigation }: any) {
         </TouchableOpacity>
       </KeyboardAwareScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -107,8 +113,8 @@ const styles = StyleSheet.create({
   },
 
   imgbackground: {
-    width: Dimensions.get("screen").width, //for full screen
-    height: Dimensions.get("screen").height, //for full screen
+    width: Dimensions.get("screen").width,
+    height: Dimensions.get("screen").height,
     resizeMode: "cover",
   },
   fixed: {
@@ -155,7 +161,6 @@ const styles = StyleSheet.create({
   titulo: {
     marginTop: 230,
     fontSize: 30,
-    /*fontWeight: "bold",*/
     color: "#ffb900",
     textAlign: "center",
     marginBottom: 50,
@@ -166,7 +171,7 @@ const styles = StyleSheet.create({
     height: 45,
     marginBottom: 30,
     borderRadius: 10,
-    fontSize: 18, //TEXTO DENTRO DEL BOTON
+    fontSize: 18,
     backgroundColor: "#eee",
     paddingLeft: 20,
   },
@@ -176,8 +181,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   keyboardContentContainer: {
-    //flex:1,
     alignItems: "center",
     justifyContent: "center",
   },
-})
+});
