@@ -4,6 +4,7 @@ import { Icon } from '@rneui/base';
 import { auth, db } from '../config/Config';
 import { ref, set } from 'firebase/database';
 import { Audio } from 'expo-av';
+import { runTransaction } from 'firebase/database';
 
 export default function GameScreen({ navigation }: any) {
   type InsectName = 'hormiga' | 'abeja' | 'araña' | 'cucaracha' | 'escarabajo' | 'blood';
@@ -47,6 +48,8 @@ export default function GameScreen({ navigation }: any) {
   const [map, setmap] = useState<any>(null);
   const [gameActive, setGameActive] = useState(true);
   const [sound, setSound] = useState<any>();
+  const [scoreGuardado, setScoreGuardado] = useState(false);
+  
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
   const mapImg = selectedMap ? mapImages[selectedMap] : null;
@@ -61,16 +64,39 @@ export default function GameScreen({ navigation }: any) {
   }
 
   // Guardar score
-  function guardarScore(id: any, user: string, score: number) {
+  useEffect(() => {
+    if (time === 0 && !scoreGuardado) {
+      setGameOver(true);
+      setGameActive(false);
+      setObjects([]);
+      stopBackgroundMusic();
+      guardarScore(usuario, score);
+      setScoreGuardado(true); // Marcar como guardado
+    }
+  
+    const interval = setInterval(() => {
+      if (!isPaused && !gameOver) {
+        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+      }
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [isPaused, gameOver, time, scoreGuardado]);
+
+  function guardarScore(user: string, score: number) {
     if (logged) {
-      set(ref(db, "puntuaciones/" + id), {
-        user: user,
-        score: score,
+      const scoreRef = ref(db, "puntuaciones/" + user);
+      runTransaction(scoreRef, (currentData) => {
+        if (currentData === null) {
+          return { user: user, score: score };
+        } else {
+          // Aquí podrías actualizar la puntuación solo si es mayor
+          return currentData;
+        }
       })
-        
-        .catch((error) => {
-          console.error("Error al guardar en la base de datos:", error);
-        });
+      .catch((error) => {
+        console.error("Error al guardar en la base de datos:", error);
+      });
     }
   }
 
@@ -190,24 +216,6 @@ export default function GameScreen({ navigation }: any) {
       await soundback.playAsync();
     }
   };
-
-  useEffect(() => {
-    if (time === 0) {
-      setGameOver(true);
-      setGameActive(false);
-      setObjects([]);
-      stopBackgroundMusic();
-      guardarScore(Date.now(), usuario, score);
-    }
-
-    const interval = setInterval(() => {
-      if (!isPaused && !gameOver) {
-        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isPaused, gameOver, time]);
 
   const RestartGame = () => {
     setObjects([]);
