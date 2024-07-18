@@ -170,6 +170,7 @@ export default function PerfilScreen({ navigation }: any) {
     setLoading(false);
   }
 
+  
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -179,7 +180,6 @@ export default function PerfilScreen({ navigation }: any) {
       <ScrollView>
         <View>
           <View>
-            <Image source={{ uri: userimg }} style={styles.userimg} />
             <Text style={styles.text}>Bienvenid@</Text>
             <Text style={styles.usertext}>{nick}</Text>
           </View>
