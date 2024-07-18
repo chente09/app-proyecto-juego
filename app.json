@@ -2,14 +2,14 @@
   "expo": {
     "name": "app-proyecto-juego",
     "slug": "app-proyecto-juego",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/image/araña3.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/image/fondo-bienv4r3.jpg",
+      "image": "./assets/image/araña3.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000"
     },
     "ios": {
       "supportsTablet": true
@@ -17,7 +17,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/image/araña3.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000"
       },
       "package": "com.vnenger.appproyectojuego"
     },

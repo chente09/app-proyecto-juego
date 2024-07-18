@@ -49,7 +49,7 @@ export default function GameScreen({ navigation }: any) {
   const [gameActive, setGameActive] = useState(true);
   const [sound, setSound] = useState<any>();
   const [scoreGuardado, setScoreGuardado] = useState(false);
-  
+
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
   const mapImg = selectedMap ? mapImages[selectedMap] : null;
@@ -70,33 +70,32 @@ export default function GameScreen({ navigation }: any) {
       setGameActive(false);
       setObjects([]);
       stopBackgroundMusic();
-      guardarScore(usuario, score);
+      guardarScore(Date.now(), usuario, score);
       setScoreGuardado(true); // Marcar como guardado
     }
-  
+
     const interval = setInterval(() => {
       if (!isPaused && !gameOver) {
         setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
       }
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [isPaused, gameOver, time, scoreGuardado]);
 
-  function guardarScore(user: string, score: number) {
+  function guardarScore(id: any, user: string, score: number) {
     if (logged) {
-      const scoreRef = ref(db, "puntuaciones/" + user);
-      runTransaction(scoreRef, (currentData) => {
-        if (currentData === null) {
-          return { user: user, score: score };
-        } else {
-          // Aquí podrías actualizar la puntuación solo si es mayor
-          return currentData;
-        }
+      set(ref(db, "puntuaciones/" + id), {
+        user: user,
+        score: score,
       })
-      .catch((error) => {
-        console.error("Error al guardar en la base de datos:", error);
-      });
+        .then(() => {
+          console.log("puntuacion guardada")
+        })
+        .catch((error) => {
+          console.error("Error al guardar en la base de datos:", error);
+        });
+
     }
   }
 
