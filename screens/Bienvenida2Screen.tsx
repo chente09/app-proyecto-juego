@@ -8,6 +8,9 @@ export default function BienvenidaScreen({navigation}:any) {
   return (
     <ImageBackground source={require('../assets/image/full.jpg')} style={styles.container}>
       <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Perfil')}>
+          <Text style={styles.textbutton}>Perfil</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Game')}>
           <Text style={styles.textbutton}>PLAY</Text>
           <Image style={styles.img2} source={require('../assets/image/INSECT.png')}/>
