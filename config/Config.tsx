@@ -4,26 +4,24 @@ import { getDatabase } from "firebase/database";
 import { getAuth, initializeAuth } from "firebase/auth";
 import { getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { getStorage } from "firebase/storage";
+import { getStorage } from 'firebase/storage'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAy0CKJUx4T99RxbZpIK3g0yWNefpegc_g",
-  authDomain: "app-mov-taller-1.firebaseapp.com",
-  databaseURL: "https://app-mov-taller-1-default-rtdb.firebaseio.com",
-  projectId: "app-mov-taller-1",
-  storageBucket: "app-mov-taller-1.appspot.com",
-  messagingSenderId: "328634721579",
-  appId: "1:328634721579:web:99699c7cadfd6a05cb916e"
+  apiKey: "AIzaSyB5vUKhquum97F1Prx0v5TXkHODLd6JdAA",
+  authDomain: "aplasta-insectos.firebaseapp.com",
+  projectId: "aplasta-insectos",
+  storageBucket: "aplasta-insectos.appspot.com",
+  messagingSenderId: "10832189466",
+  appId: "1:10832189466:web:e070515aff3f4a3db8d9a3"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 export const db = getDatabase(app);
-export const storage = getStorage(app)
 
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)

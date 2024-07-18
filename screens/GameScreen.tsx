@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback  } from 'react';
 import { Image, ImageBackground, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@rneui/base';
+import { auth, db } from '../config/Config';
+import { ref, set } from 'firebase/database';
 
 type InsectName = 'hormiga' | 'abeja' | 'araña' | 'cucaracha' | 'escarabajo' | 'blood';
 type MapName = 'hormiguero' | 'panal' | 'telaraña' | 'estanque' | 'jardin';
@@ -36,9 +38,45 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
   const [gameOver, setGameOver] = useState(false);
   const [viewDimensions, setViewDimensions] = useState({ width: 0, height: 0 });
   const [isPaused, setIsPaused] = useState(false);
+  const [nick, setnick] = useState("");
+  const [logged, setlogged] = useState(false);
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
   const mapImg = selectedMap ? mapImages[selectedMap] : null;
+
+  function usuarioActual() {
+    const user = auth.currentUser;
+    if (user !== null) {
+      // The user object has basic properties such as display name, email, etc.
+      const displayName: any = user.displayName;
+      setnick(displayName);
+      //console.log(nick)
+      setlogged(true);
+    }
+  }
+  
+  // Guardar score
+  function guardarScore(
+    id: any,
+    nick: string,
+    score: number
+  ) {
+    if (logged) {
+      set(ref(db, "puntuaciones/" + id), {
+        nick: nick,
+        score: score,
+      })
+        .then(() => {
+          console.log("puntuacion guardada")
+        })
+        .catch((error) => {
+          console.error("Error al guardar en la base de datos:", error);
+
+        });
+
+    }
+  }
+
 
   const togglePause = useCallback(() => {
     setIsPaused(prevState => !prevState);
@@ -57,6 +95,7 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
     if (time === 0) {
       setGameOver(true);
       setObjects([]);
+      guardarScore(Date.now(), nick, score)
     }
 
     const interval = setInterval(() => {
@@ -221,7 +260,7 @@ const styles = StyleSheet.create({
   },
   textocontain: {
     position: 'absolute',
-    top: 20,
+    top: 80,
     left: 0,
     right: 0,
     flexDirection: 'row',
