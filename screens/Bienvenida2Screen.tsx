@@ -3,6 +3,7 @@ import React from 'react'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Navegador from '../navigators/BottomNavigator';
 import { stylesGlobal } from '../theme/appTheme';
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function BienvenidaScreen({navigation}:any) {
   return (
@@ -10,6 +11,7 @@ export default function BienvenidaScreen({navigation}:any) {
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Perfil')}>
           <Text style={styles.textbutton}>Perfil</Text>
+          <FontAwesome name="user-circle-o" size={70} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.btn} onPress={()=>navigation.navigate('Game')}>
           <Text style={styles.textbutton}>PLAY</Text>

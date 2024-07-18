@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { storage, db, auth } from "../config/Config";
 import { getDownloadURL, ref as reff, uploadBytes } from "firebase/storage";
-import { getDatabase, onValue, ref, update } from "firebase/database";
+import {onValue, ref, update } from "firebase/database";
 import { getAuth, updateProfile, signOut } from "firebase/auth";
 import { useFonts } from "expo-font";
 import { Icon } from "@rneui/base";
