@@ -1,35 +1,36 @@
-import React, { useState, useEffect, useCallback  } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Image, ImageBackground, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@rneui/base';
 import { auth, db } from '../config/Config';
 import { ref, set } from 'firebase/database';
+import { Audio } from 'expo-av';
 
-type InsectName = 'hormiga' | 'abeja' | 'araña' | 'cucaracha' | 'escarabajo' | 'blood';
-type MapName = 'hormiguero' | 'panal' | 'telaraña' | 'estanque' | 'jardin';
+export default function GameScreen({ navigation }: any) {
+  type InsectName = 'hormiga' | 'abeja' | 'araña' | 'cucaracha' | 'escarabajo' | 'blood';
+  type MapName = 'hormiguero' | 'panal' | 'telaraña' | 'estanque' | 'jardin';
 
-interface Insect {
-  name: InsectName;
-  map: MapName | null;
-}
+  interface Insect {
+    name: InsectName;
+    map: MapName | null;
+  }
 
-const insectImages: Record<InsectName, any> = {
-  hormiga: require('../assets/image/hormiga2.png'),
-  abeja: require('../assets/image/abeja.png'),
-  araña: require('../assets/image/araña3.png'),
-  cucaracha: require('../assets/image/cucaracha.png'),
-  escarabajo: require('../assets/image/escarabajo.png'),
-  blood: require('../assets/image/bloodsplash.png'),
-};
+  const insectImages: Record<InsectName, any> = {
+    hormiga: require('../assets/image/hormiga2.png'),
+    abeja: require('../assets/image/abeja.png'),
+    araña: require('../assets/image/araña3.png'),
+    cucaracha: require('../assets/image/cucaracha.png'),
+    escarabajo: require('../assets/image/escarabajo.png'),
+    blood: require('../assets/image/bloodsplash.png'),
+  };
 
-const mapImages: Record<MapName, any> = {
-  hormiguero: require('../assets/image/fondo-hormiguero.jpg'),
-  panal: require('../assets/image/fondo-panal2.jpg'),
-  telaraña: require('../assets/image/fondo-telaraña3.jpg'),
-  estanque: require('../assets/image/fondo-estanque.jpg'),
-  jardin: require('../assets/image/fondo-jardin.jpg'),
-};
+  const mapImages: Record<MapName, any> = {
+    hormiguero: require('../assets/image/fondo-hormiguero.jpg'),
+    panal: require('../assets/image/fondo-panal2.jpg'),
+    telaraña: require('../assets/image/fondo-telaraña3.jpg'),
+    estanque: require('../assets/image/fondo-estanque.jpg'),
+    jardin: require('../assets/image/fondo-jardin.jpg'),
+  };
 
-const GameScreen = ({ navigation }: { navigation: any }) => {
   const [selectedInsect, setSelectedInsect] = useState<Insect | null>(null);
   const [selectedMap, setSelectedMap] = useState<MapName | null>(null);
   const [objects, setObjects] = useState<Array<{ id: number; img: any; x: number; y: number }>>([]);
@@ -38,8 +39,14 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
   const [gameOver, setGameOver] = useState(false);
   const [viewDimensions, setViewDimensions] = useState({ width: 0, height: 0 });
   const [isPaused, setIsPaused] = useState(false);
-  const [nick, setnick] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [logged, setlogged] = useState(false);
+  const [altura, setaltura] = useState(0);
+  const [insectoimg, setInsectoimg] = useState<any>(null);
+  const [dificultad, setdificultad] = useState(1000);
+  const [map, setmap] = useState<any>(null);
+  const [gameActive, setGameActive] = useState(true);
+  const [sound, setSound] = useState<any>();
 
   const insectImg = selectedInsect ? insectImages[selectedInsect.name] : null;
   const mapImg = selectedMap ? mapImages[selectedMap] : null;
@@ -47,65 +54,71 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
   function usuarioActual() {
     const user = auth.currentUser;
     if (user !== null) {
-      // The user object has basic properties such as display name, email, etc.
       const displayName: any = user.displayName;
-      setnick(displayName);
-      //console.log(nick)
+      setUsuario(displayName);
       setlogged(true);
     }
   }
-  
+
   // Guardar score
-  function guardarScore(
-    id: any,
-    nick: string,
-    score: number
-  ) {
+  function guardarScore(id: any, user: string, score: number) {
     if (logged) {
       set(ref(db, "puntuaciones/" + id), {
-        nick: nick,
+        user: user,
         score: score,
       })
-        .then(() => {
-          console.log("puntuacion guardada")
-        })
+        
         .catch((error) => {
           console.error("Error al guardar en la base de datos:", error);
-
         });
-
     }
   }
-
-
-  const togglePause = useCallback(() => {
-    setIsPaused(prevState => !prevState);
-  }, []);
 
   const handleExit = useCallback(() => {
     navigation.navigate('Bienvenida2');
   }, [navigation]);
 
   const onLayout = (event: any) => {
-    const { width, height } = event.nativeEvent.layout;
+    const { width, height, y } = event.nativeEvent.layout;
     setViewDimensions({ width, height });
+    setaltura(y);
   };
 
   useEffect(() => {
-    if (time === 0) {
-      setGameOver(true);
-      setObjects([]);
-      guardarScore(Date.now(), nick, score)
+    if (gameOver) {
+      return; // para la carga de la musica
+    }
+    loadBackgroundMusic();
+  }, [gameOver]);
+
+  useEffect(() => {
+    usuarioActual();
+
+    if (!gameActive || isPaused) {
+      return; // No generar más objetos si el juego no está activo
     }
 
-    const interval = setInterval(() => {
-      if (!isPaused && !gameOver) {
-        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-      }
+    const intervalId = setInterval(() => {
+      setObjects((prevObjects) => [
+        ...prevObjects,
+        {
+          id: Date.now(),
+          img: insectImg,
+          x: Math.random() * (viewDimensions.width - 50),
+          y: Math.random() * (viewDimensions.height - 50),
+        },
+      ]);
+    }, dificultad);
+
+    const timeIntervalId = setInterval(() => {
+      setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isPaused, gameOver, time]);
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(timeIntervalId);
+    };
+  }, [gameActive, isPaused, viewDimensions.width, viewDimensions.height, insectImg, dificultad]);
 
   const eliminacionObjectInsect = (objectId: number) => {
     setObjects((prevObjects) => prevObjects.filter((obj) => obj.id !== objectId));
@@ -118,11 +131,91 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
     );
   };
 
+  async function playSound() {
+    const { sound }: any = await Audio.Sound.createAsync(require('../assets/sound/efecto-aplastado.mp3'));
+    setSound(sound);
+    await sound.playAsync();
+  }
+
+  useEffect(() => {
+    return sound
+      ? () => {
+        sound.unloadAsync();
+      }
+      : undefined;
+  }, [sound]);
+
+  const [soundback, setSoundback] = useState<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    return soundback ? () => {
+      stopBackgroundMusic();
+      soundback.unloadAsync();
+    } : undefined;
+  }, [soundback]);
+
+  const loadBackgroundMusic = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sound/game-music-loop-20.mp3'),
+        { shouldPlay: true, isLooping: true }
+      );
+      setSoundback(sound);
+    } catch (error) {
+      console.error('Error al cargar la música de fondo', error);
+    }
+  };
+
+  const playBackgroundMusic = async () => {
+    if (soundback) {
+      await soundback.playAsync();
+    }
+  };
+
+  const pauseBackgroundMusic = async () => {
+    if (soundback) {
+      await soundback.pauseAsync();
+    }
+  };
+
+  const stopBackgroundMusic = async () => {
+    if (soundback) {
+      await soundback.stopAsync();
+    }
+  };
+
+  const restartBackgroundMusic = async () => {
+    if (soundback) {
+      await soundback.setPositionAsync(0);
+      await soundback.playAsync();
+    }
+  };
+
+  useEffect(() => {
+    if (time === 0) {
+      setGameOver(true);
+      setGameActive(false);
+      setObjects([]);
+      stopBackgroundMusic();
+      guardarScore(Date.now(), usuario, score);
+    }
+
+    const interval = setInterval(() => {
+      if (!isPaused && !gameOver) {
+        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPaused, gameOver, time]);
+
   const RestartGame = () => {
     setObjects([]);
     setScore(0);
     setTime(30);
     setGameOver(false);
+    setGameActive(true);
+    restartBackgroundMusic();
   };
 
   useEffect(() => {
@@ -138,7 +231,7 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
       }
     };
 
-    const interval = setInterval(generateInsects, 1000); // Genera un insecto cada segundo
+    const interval = setInterval(generateInsects, 1000);
 
     return () => clearInterval(interval);
   }, [isPaused, gameOver, viewDimensions, insectImg]);
@@ -192,26 +285,27 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
       </ImageBackground>
     );
   }
-  
 
   return (
     <ImageBackground source={mapImg} style={styles.container}>
       <View style={styles.textocontain}>
-        <Text style={styles.texto}>Score: <Text style={{ color: 'black' }}>{score}</Text></Text>
-        <Text style={styles.texto}>Tiempo: <Text style={{ color: 'black' }}>{time}</Text></Text>
+        <Text style={styles.texto}>Score: <Text style={{ color: 'black' }}>{score}</Text> </Text>
+        <Text style={styles.texto}>Tiempo: <Text style={{ color: 'black' }}>{time}</Text> </Text>
 
-        {!isPaused ? (
-          <Pressable style={styles.btnpause} onPress={() => setIsPaused(true)}>
+        {!isPaused && (
+          <Pressable style={styles.btnpause} onPress={() => (setIsPaused(!isPaused), pauseBackgroundMusic())}>
             <Icon name='pause' type="material" color={'#F1C40F'} />
           </Pressable>
-        ) : (
-          <Pressable style={styles.btnplay} onPress={() => setIsPaused(false)}>
+        )}
+        {isPaused && (
+          <Pressable style={styles.btnplay} onPress={() => (setIsPaused(!isPaused), playBackgroundMusic())}>
             <Icon name="play-arrow" type="material" color={'#27AE60'} />
           </Pressable>
         )}
-        <Pressable style={styles.btnupsalir} onPress={() => navigation.navigate('Bienvenida2')}>
+        <Pressable style={styles.btnupsalir} onPress={handleExit}>
           <Icon name='exit-to-app' type="material" color={'#E74C3C'} />
         </Pressable>
+
       </View>
       <View style={styles.gamewindow} onLayout={onLayout}>
         {objects.map((obj) => (
@@ -219,7 +313,7 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
             key={obj.id}
             style={[styles.element, { top: obj.y, left: obj.x }]}
             onPressOut={() => eliminacionObjectInsect(obj.id)}
-            onPressIn={() => aplastadoInsect(obj.id)}
+            onPressIn={() => (aplastadoInsect(obj.id), playSound())}
           >
             <Image source={obj.img} style={styles.insectimg} />
           </Pressable>
@@ -252,29 +346,26 @@ const GameScreen = ({ navigation }: { navigation: any }) => {
       </View>
     </ImageBackground>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    resizeMode: "cover",
   },
   textocontain: {
-    position: 'absolute',
-    top: 80,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    top: 50,
+    width: "100%",
+    height: 50,
+    backgroundColor: "#7FB3D5",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center"
   },
   texto: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    color: 'black',
-    paddingHorizontal: 5,
-    paddingVertical: 3,
-    backgroundColor: '#A9CCE3',
-    borderRadius: 5,
+    fontSize: 20,
+    color: "#E52B50",
+    fontWeight: "bold",
   },
   btnpause: {
     padding: 6,
@@ -292,14 +383,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   gamewindow: {
-    flex: 1,
+    top: 50,
+    width: "100%",
+    height: "100%",
   },
   element: {
-    position: 'absolute',
-  },
-  insectimg: {
     width: 50,
     height: 50,
+    position: "absolute",
+  },
+  insectimg: {
+    width: 70,
+    height: 70,
+    resizeMode: "cover",
   },
   centeredView: {
     flex: 1,
@@ -351,7 +447,7 @@ const styles = StyleSheet.create({
   pausedView: {
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#FFF',
+    backgroundColor: '#27AE60',
   },
   txtpausa: {
     fontSize: 30,
@@ -388,8 +484,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD700',
   },
   insectImage: {
-    width: 65,
-    height: 65,
+    width: 50,
+    height: 50,
   },
   mapOptions: {
     flexDirection: 'row',
@@ -410,6 +506,3 @@ const styles = StyleSheet.create({
     height: 50,
   },
 });
-
-
-export default GameScreen;

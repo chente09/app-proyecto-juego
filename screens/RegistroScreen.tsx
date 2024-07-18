@@ -110,29 +110,6 @@ export default function RegistroScreen({ navigation }: any) {
       }
     }
   }
-  //subir imagen
-  async function subirImagen(nombre: string) {
-    const storageRef = reff(storage, "usuarios/" + nombre); //se puede coloccar una carpeta para subir el archivo
-
-    try {
-      //toman la imagen y la transforman en formato binario
-      const response = await fetch(imagen);
-      const blob = await response.blob();
-
-      await uploadBytes(storageRef, blob, {
-        contentType: "image/jpg",
-      });
-
-      console.log("La imagen se subió con éxito");
-      Alert.alert("Mensaje", "La imagen se subio correctamente");
-      // Obtiene la URL de la imagen
-      const imageURL = await getDownloadURL(storageRef);
-      console.log("URL de desacarga de la imagen", imageURL);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   function RegistroValidacion() {
     if (
       correo.trim() === "" ||
