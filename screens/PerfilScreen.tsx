@@ -1,48 +1,28 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  ActivityIndicator,
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { storage, db, auth } from "../config/Config";
-import {
-  getDownloadURL,
-  ref as reff,
-  uploadBytes,
-} from "firebase/storage";
-import {
-  getDatabase,
-  onValue,
-  ref,
-  update,
-} from "firebase/database";
+import { getDownloadURL, ref as reff, uploadBytes } from "firebase/storage";
+import { getDatabase, onValue, ref, update } from "firebase/database";
 import { getAuth, updateProfile, signOut } from "firebase/auth";
 import { useFonts } from "expo-font";
 import { Icon } from "@rneui/base";
+import { Alert, Dimensions, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ImageBackground } from "react-native";
+import { ActivityIndicator } from "react-native";
 
 export default function PerfilScreen({ navigation }: any) {
   const [datos, setDatos] = useState<any>({
     name: "",
     lastName: "",
-    nick: "",
-    age: "",
     email: "",
+    age: "",
+    img: "",
   });
 
   const [userimg, setuserimg] = useState(
     "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
   );
-  const [nick, setnick] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [name, setName] = useState("");
   const [lastname, setLastName] = useState("");
   const [age, setAge] = useState("");
@@ -57,15 +37,15 @@ export default function PerfilScreen({ navigation }: any) {
         if (user === null) {
           return;
         }
-        setnick(user.displayName ? user.displayName : "");
+        setUsuario(user.displayName ? user.displayName : "");
 
-        const starCountRef = ref(db, "usuarios/" + user.uid);
+        const starCountRef = ref(db, "usuarios/" + user.displayName);
         onValue(starCountRef, (snapshot) => {
           if (datos.name !== "") return;
           if (snapshot.exists()) {
             const data = snapshot.val();
             setDatos(data);
-            setUsuario(data);
+            setUser(data);
             return;
           } else {
             console.error("No hay datos en la referencia.");
@@ -78,8 +58,8 @@ export default function PerfilScreen({ navigation }: any) {
     fetchData();
   }, []);
 
-  function setUsuario(data: any) {
-    setName(data.firstName);
+  function setUser(data: any) {
+    setName(data.name);
     setLastName(data.lastName);
     setAge(data.age);
     setMail(data.email);
@@ -91,7 +71,8 @@ export default function PerfilScreen({ navigation }: any) {
       if (user.photoURL === null) {
         setuserimg("https://cdn-icons-png.flaticon.com/512/12595/12595885.png");
       } else {
-        setuserimg(user.photoURL);
+        const photoURL: any = user.photoURL;
+        setuserimg(photoURL);
       }
     }
     return user;
@@ -131,22 +112,21 @@ export default function PerfilScreen({ navigation }: any) {
 
   async function guardar() {
     setLoading(true);
+    update(ref(db, "usuarios/" + usuario), {
+      name: name,
+      lastName: lastname,
+      //email: mail,
+      age: age,
+    });
+
     const user = auth.currentUser;
     if (user === null) {
-      setLoading(false);
       return;
     }
 
-    const userRef = ref(db, "usuarios/" + user.uid);
-    update(userRef, {
-      firstName: name,
-      lastName: lastname,
-      age: age,
-      email: mail,
-    });
-
     if (userimg) {
-      const storageRef = reff(storage, "usuarios/" + user.uid); // Subir imagen al storage
+      //subir la imagen al storage
+      const storageRef = reff(storage, "usuarios/" + usuario); //se puede coloccar una carpeta para subir el archivo
       try {
         const response = await fetch(userimg);
         const blob = await response.blob();
@@ -154,11 +134,12 @@ export default function PerfilScreen({ navigation }: any) {
           contentType: "image/jpg",
         });
         console.log("La imagen se subió con éxito");
+        // Obtener la URL de la imagen
         const imageUrl = await getDownloadURL(storageRef);
 
         await updateProfile(user, {
           photoURL: imageUrl,
-          displayName: nick,
+          displayName: usuario,
         });
       } catch (error: any) {
         console.error(error.message);
@@ -170,176 +151,396 @@ export default function PerfilScreen({ navigation }: any) {
     setLoading(false);
   }
 
+  //Importar fonts
+  const [fontsLoaded] = useFonts({
+    pixel: require("../assets/fonts/pixel.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../assets/image/fondo-bienv2.jpg")}
+        source={require("../assets/image/modal-gameover6.jpg")}
         style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
       />
-      <ScrollView>
-        <View>
-          <View>
-            <Image source={{ uri: userimg }} style={styles.userimg} />
-            <Text style={styles.text}>Bienvenid@</Text>
-            <Text style={styles.usertext}>{nick}</Text>
-          </View>
-          <View style={styles.titulo}>
-            <Text style={styles.titulo2}>Datos de Usuario</Text>
-          </View>
-          <View>
-            <Text style={styles.subtitulo}>Nombre:</Text>
-            <TextInput
-              style={editable ? styles.editable : styles.noeditable}
-              editable={editable}
-              onChangeText={(value) => setName(value)}
+
+      <ScrollView
+        contentContainerStyle={styles.keyboardContentContainer}
+        style={styles.keyboardContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <Text style={styles.titulo}>Mi Cuenta</Text>
+
+          <Pressable style={styles.circleContainer} onPress={() => pickImage()}>
+            <ImageBackground
+              source={{ uri: userimg }}
+              style={styles.profileImage}
             >
-              {name}
-            </TextInput>
-            <Text style={styles.subtitulo}>Apellidos:</Text>
+              {editable && (
+                <Icon
+                  name="edit"
+                  type="material"
+                  color="#42A5F5"
+                  style={{ marginTop: 80, marginLeft: 30 }}
+                />
+              )}
+            </ImageBackground>
+          </Pressable>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Nick:</Text>
             <TextInput
-              style={editable ? styles.editable : styles.noeditable}
-              editable={editable}
-              onChangeText={(value) => setLastName(value)}
-            >
-              {lastname}
-            </TextInput>
-            <Text style={styles.subtitulo}>Edad:</Text>
-            <TextInput
-              style={editable ? styles.editable : styles.noeditable}
-              editable={editable}
-              keyboardType="numeric"
-              onChangeText={(value) => setAge(value)}
-            >
-              {age}
-            </TextInput>
-            <Text style={styles.subtitulo}>Correo:</Text>
-            <TextInput
-              style={editable ? styles.editable : styles.noeditable}
-              editable={editable}
-              keyboardType="email-address"
-              onChangeText={(value) => setMail(value)}
-            >
-              {mail}
-            </TextInput>
-            <View>
-              <Text style={styles.subtitulo}>Foto de Perfil</Text>
-              <Pressable onPress={pickImage}>
-                <Image source={{ uri: userimg }} style={styles.profileimg} />
-              </Pressable>
-            </View>
-          </View>
-          <View style={styles.icono}>
-            <Icon
-              reverse
-              name="sign-out"
-              type="font-awesome"
-              color="#3B28B1"
-              onPress={() => cerrarSesion()}
+              style={[
+                styles.input,
+                {
+                  color: "#707B7C",
+                  fontWeight: "400",
+                  fontStyle: "italic",
+                  borderBottomColor: "#16A085",
+                },
+              ]}
+              placeholder="Usuario"
+              value={usuario}
+              editable={false}
+              onChangeText={(text) => setUsuario(usuario)}
             />
-            {loading ? (
-              <ActivityIndicator size={70} color="#0000ff" />
-            ) : editable ? (
-              <Icon
-                reverse
-                name="save"
-                type="font-awesome"
-                color="#3B28B1"
-                onPress={() => guardar()}
-              />
-            ) : (
-              <Icon
-                reverse
-                name="edit"
-                type="font-awesome"
-                color="#3B28B1"
-                onPress={() => editar()}
-              />
-            )}
           </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Nombre:</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: editable ? "black" : "#707B7C",
+                  fontWeight: editable ? "normal" : "400",
+                  fontStyle: editable ? "normal" : "italic",
+                  borderBottomColor: editable ? "#3498DB" : "#16A085",
+                },
+              ]}
+              placeholder="Nombre"
+              value={name}
+              editable={editable}
+              onChangeText={(text) => setName(text)}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Apellido:</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: editable ? "black" : "#707B7C",
+                  fontWeight: editable ? "normal" : "400",
+                  fontStyle: editable ? "normal" : "italic",
+                  borderBottomColor: editable ? "#3498DB" : "#16A085",
+                },
+              ]}
+              placeholder="Apellido"
+              value={lastname}
+              editable={editable}
+              onChangeText={(text) => setLastName(text)}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Edad:</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: editable ? "black" : "#707B7C",
+                  fontWeight: editable ? "normal" : "400",
+                  fontStyle: editable ? "normal" : "italic",
+                  borderBottomColor: editable ? "#3498DB" : "#16A085",
+                },
+              ]}
+              placeholder="Edad"
+              value={age}
+              editable={editable}
+              onChangeText={(text) => setAge(text)}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Correo:</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: "#707B7C",
+                  fontWeight: "400",
+                  fontStyle: "italic",
+                  borderBottomColor: "#16A085",
+                },
+              ]}
+              placeholder="Correo"
+              value={mail}
+              editable={false}
+              onChangeText={(text) => setMail(text)}
+            />
+          </View>
+
+          {!editable && (
+            <Pressable style={styles.btnEditar} onPress={() => editar()}>
+              <Text style={styles.textbtn}>Editar</Text>
+            </Pressable>
+          )}
+
+          {editable && (
+            <Pressable style={styles.btnguardar} onPress={() => guardar()}>
+              <Text style={styles.textbtn}>Guardar</Text>
+            </Pressable>
+          )}
+          {editable && (
+            <Pressable
+              style={styles.btncancelar}
+              onPress={() => setEditable(!editable)}
+            >
+              <Text style={styles.textbtn}>Cancelar</Text>
+            </Pressable>
+          )}
+
+          <Pressable style={styles.btnsalir} onPress={() => cerrarSesion()}>
+            <Text style={styles.textbtn}>Cerrar Sesion</Text>
+          </Pressable>
         </View>
       </ScrollView>
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
+      <TouchableOpacity
+          style={styles.btn2}
+          onPress={() => navigation.navigate("Bienvenida2")}
+        >
+          <Text style={styles.textbutton}>REGRESAR</Text>
+        </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  btn2: {
+    width: 100,
+    height: 40,
+    alignItems: "center",
+    verticalAlign: "auto",
+    marginVertical: 10,
+    backgroundColor: "#f25022",
+    justifyContent: "center",
+    borderRadius: 5,
+  },
+  textbutton: {
+    fontSize: 15,
+    color: "white",
+    fontWeight: "bold",
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject, // Esto hace que el contenedor ocupe toda la pantalla
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // Fondo semi-transparente
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scrollContainer: {},
+  content: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    width: 250,
+  },
+  label: {
+    width: 70,
+    marginRight: 10,
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#696969",
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    borderWidth: 0.5,
+    borderRadius: 12,
+    borderBottomWidth: 4,
+    paddingHorizontal: 10,
+    //borderBottomColor:'#16A085',
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  imgbackground: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-  },
-  fixed: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  userimg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginTop: 20,
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 10,
-  },
-  usertext: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginVertical: 5,
+    alignItems: "center",
   },
   titulo: {
-    marginVertical: 20,
-    paddingHorizontal: 10,
+    marginTop: 30,
+    fontSize: 30,
+    fontFamily: "pixel",
+    color: "#D4AC0D",
+    textAlign: "center",
+    marginBottom: 40,
+    textShadowColor: "#F2F3F4",
+    textShadowOffset: { width: -2, height: 5 },
+    textShadowRadius: 12,
   },
-  titulo2: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  subtitulo: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginVertical: 5,
-  },
-  editable: {
-    borderWidth: 1,
-    borderColor: '#3B28B1',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-  },
-  noeditable: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 5,
-    backgroundColor: '#f0f0f0',
-  },
-  profileimg: {
+  circleContainer: {
+    position: "relative",
     width: 100,
     height: 100,
     borderRadius: 50,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    borderRadius: 50,
+  },
+  btnsalir: {
+    width: 120,
+    height: 40,
+    backgroundColor: "red",
     marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
   },
-  icono: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 20,
+
+  btnEditar: {
+    width: 120,
+    height: 40,
+    backgroundColor: "#1db954",
+    marginTop: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
   },
-})
+  textbtn: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalView: {
+    height: 500,
+    width: 300,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  gameovertxt: {
+    color: "red",
+    marginVertical: 10,
+    fontSize: 25,
+    fontWeight: "bold",
+  },
+  puntuaciontxt: {
+    color: "blue",
+    marginVertical: 10,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  containbtn: {
+    alignItems: "center",
+  },
+  btnreinicio: {
+    width: 100,
+    height: 50,
+    backgroundColor: "blue",
+    marginVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+  btnlog: {
+    width: 100,
+    height: 50,
+    backgroundColor: "red",
+    marginVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+  textbtnlog: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  levelbtn: {
+    width: 100,
+    height: 50,
+    marginVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+  leveltitle: {
+    marginTop: 30,
+    fontSize: 25,
+    fontWeight: "bold",
+    color: "#D2691E",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  btnguardar: {
+    width: 120,
+    height: 40,
+    backgroundColor: "#4169e1",
+    marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+  btncancelar: {
+    width: 120,
+    height: 40,
+    backgroundColor: "#FFC107",
+    marginTop: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+  },
+  fixed: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  imgbackground: {
+    width: Dimensions.get("window").width, //for full screen
+    height: Dimensions.get("window").height, //for full screen
+    resizeMode: "cover",
+  },
+  keyboardContainer: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  keyboardContentContainer: {
+    //flex:1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
+

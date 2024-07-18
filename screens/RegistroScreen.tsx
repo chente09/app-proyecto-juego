@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { Alert, Dimensions, Image, ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, KeyboardAvoidingView, Button } from 'react-native';
+import { Alert, Dimensions, Image, ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, TextInput, KeyboardAvoidingView, Button } from 'react-native';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, db } from '../config/Config';
@@ -9,9 +9,10 @@ import { getDownloadURL, uploadBytes, ref as reff } from 'firebase/storage';
 import { storage } from "../config/Config";
 import { ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useFonts } from 'expo-font';
 
 
-export default function RegistroScreen({navigation}: any) {
+export default function RegistroScreen({ navigation }: any) {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [correo, setCorreo] = useState('');
@@ -20,6 +21,15 @@ export default function RegistroScreen({navigation}: any) {
   const [edad, setEdad] = useState('');
   const [imagen, setImagen] = useState('');
   const [loading, setLoading] = useState(false);
+
+  //Importar fonts
+  const [fontsLoaded] = useFonts({
+    pixel: require("../assets/fonts/pixel.ttf"),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -40,7 +50,7 @@ export default function RegistroScreen({navigation}: any) {
 
   //////REGISTRO DE USUARIO///////////
   async function RegistroSave() {
-    try{
+    try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         correo,
@@ -50,9 +60,9 @@ export default function RegistroScreen({navigation}: any) {
       console.log("Registro exitoso");
 
       // Llamando a la función para guardar en la base de datos
-      guardar(nombre, apellido, correo, usuario, edad);
+      guardar(nombre, apellido, correo, usuario, edad, imagen, contrasenia);
       // agregar la imagen de perfil de usuario si es que la hay
-      if (imagen!=" ") {
+      if (imagen != " ") {
         //subir la imagen al storage
         const storageRef = reff(storage, "usuarios/" + usuario); //se puede coloccar una carpeta para subir el archivo
         try {
@@ -77,8 +87,8 @@ export default function RegistroScreen({navigation}: any) {
         displayName: usuario,
       });
       // Navegando a la pantalla de bienvenida
-      navigation.navigate("Login");
-    }catch (error: any) {
+      navigation.navigate("Bienvenida2");
+    } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
 
@@ -139,7 +149,6 @@ export default function RegistroScreen({navigation}: any) {
       return;
     } else {
       RegistroSave();
-
       //LIMPIAR CAMPOS
       setApellido("");
       setContrasenia("");
@@ -155,7 +164,9 @@ export default function RegistroScreen({navigation}: any) {
     apellido: string,
     correo: string,
     usuario: string,
-    edad: string
+    edad: string,
+    imagen: string,
+    contrasenia : string 
   ) {
     setLoading(true);
     set(ref(db, "usuarios/" + usuario), {
@@ -163,6 +174,8 @@ export default function RegistroScreen({navigation}: any) {
       lastName: apellido,
       email: correo,
       age: edad,
+      img : imagen,
+      password : contrasenia
     })
       .then(() => {
         Alert.alert("Mensaje", "Datos Guardados");
@@ -176,10 +189,10 @@ export default function RegistroScreen({navigation}: any) {
 
   return (
     <View style={styles.container}>
-    <ImageBackground
-      source={require("../assets/image/fondo-bienv2.jpg")}
-      style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
-    ></ImageBackground>
+      <ImageBackground
+        source={require("../assets/image/fondo-bienv2.jpg")}
+        style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
+      ></ImageBackground>
       <SafeAreaView style={styles.mainContainer}>
         <KeyboardAwareScrollView
           style={styles.keyboardContainer}
@@ -190,8 +203,8 @@ export default function RegistroScreen({navigation}: any) {
               source={require("../assets/image/fondo-bienv2.jpg")}
               style={styles.imgmodal}
               blurRadius={30}
-              imageStyle={{opacity:0.6}}
-              
+              imageStyle={{ opacity: 0.6 }}
+
             >
               <Text style={styles.titulo}>Registrate</Text>
 
@@ -252,10 +265,10 @@ export default function RegistroScreen({navigation}: any) {
               />
 
               <Text
-              style={{fontSize:16, fontWeight:'500', marginTop:10}}>
+                style={{ fontSize: 16, fontWeight: '500', marginTop: 10 }}>
                 ¿Ya tienes cuenta?{" "}
                 <Text
-                  style={{ textDecorationLine: "underline", color: "blue", fontSize:16}}
+                  style={{ textDecorationLine: "underline", color: "blue", fontSize: 16 }}
                   onPress={() => navigation.navigate("Login")}
                 >
                   Inicia Sesion
@@ -276,7 +289,7 @@ export default function RegistroScreen({navigation}: any) {
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
-    
+
     </View>
   );
 }
@@ -345,7 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     //padding: 20,
     alignItems: "center",
-    overflow:'hidden'
+    overflow: 'hidden'
   },
   input: {
     height: 40,
@@ -358,7 +371,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
-    marginTop:50,
+    marginTop: 50,
     //marginBottom: 10,
     justifyContent: "center",
   },
@@ -375,7 +388,7 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     alignItems: "center",
-    padding:20,
-    
+    padding: 20,
+
   },
 });

@@ -1,103 +1,115 @@
 import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
-import { stylesGlobal } from '../theme/appTheme'
-import Navegador from '../navigators/BottomNavigator';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/Config';
+import { useFonts } from 'expo-font';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-export default function LoginScreen({navigation}:any) {
+export default function LoginScreen({ navigation }: any) {
 
-  const [correo, setcorreo] = useState('')
-  const [contrasenia, setcontrasenia] = useState('')
+  const [correo, setcorreo] = useState("")
+  const [contrasenia, setcontrasenia] = useState("")
 
-  function login(){
+  const [fontsLoaded] = useFonts({
+    pixel: require("../assets/fonts/pixel.ttf"),
+  });
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  function login() {
     signInWithEmailAndPassword(auth, correo, contrasenia)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-      // ...
-      console.log('Ingreso Exitoso');
-      navigation.navigate('BottomTab')
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigation.navigate('Bienvenida2');
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
 
-    })
-    .catch((error) => {
-      console.log(error.code);
-    
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      switch (errorCode) {
-        case "auth/invalid/credential":
-          Alert.alert("Error", "Las credenciales son incorrectas");
-          break;
-        case "auth/missing-password":
-          Alert.alert("Error", "Falta contraseña");
-          break;
-        case "auth/invalid-email":
-          Alert.alert("Error", "Ingrese un correo valido");
-          break;
-        default:
-          Alert.alert("Error", "Contactenos");
-          break;
-      }
-    });
+        let titulo = '';
+        let mensaje = '';
 
-    setcorreo('')
-    setcontrasenia('')
+        switch (errorCode) {
+          case 'auth/invalid-email':
+            titulo = 'Correo inválido';
+            mensaje = 'Revisar que el email sea el correcto';
+            break;
+          case 'auth/invalid-credential':
+            titulo = 'Error de Usuario';
+            mensaje = 'El usuario no se encuentra registrado';
+            break;
+          case 'auth/missing-password':
+            titulo = 'Error en Contraseña';
+            mensaje = 'La contraseña es incorrecta';
+            break;
+          default:
+            titulo = 'Error';
+            mensaje = 'Revisar credenciales';
+            break;
+        }
+
+        console.log(errorCode);
+        Alert.alert(titulo, mensaje);
+      });
   }
 
   return (
     <View style={styles.container}>
       <ImageBackground
-       source={require("../assets/image/iniciosesion.jpeg")}
-       style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
+        source={require("../assets/image/iniciosesion.jpeg")}
+        style={[styles.imgbackground, styles.fixed, { zIndex: -1 }]}
       >
       </ImageBackground>
-      <Text style={styles.titulo}>INICIO DE SESION</Text>
-      <TextInput
-        placeholder='Ingresar Correo'
-        keyboardType='email-address'
-        style={styles.input}
-        onChangeText={(texto)=>setcorreo(texto)}
-        value={correo}
-      />
-      <TextInput
-        placeholder='Ingresar Contraseña'
-        secureTextEntry
-        style={styles.input}
-        onChangeText={(texto)=>setcontrasenia(texto)}
-        value={contrasenia}
-      />
-      <View >
-      <TouchableOpacity 
-        style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('Bienvenida2')}>
-        <Text style={styles.text}>Ingresar</Text>
-      </TouchableOpacity>
+      <KeyboardAwareScrollView
+        style={styles.keyboardContainer}
+        contentContainerStyle={styles.keyboardContentContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.titulo}>BIENVENIDO!</Text>
 
-      <TouchableOpacity 
-        style={stylesGlobal.btn}
-        onPress={()=> navigation.navigate('Registro')}>
-        <Text style={styles.text}>Registrar</Text>
-      </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Ingresar Correo"
+          onChangeText={(texto) => setcorreo(texto)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={correo}
+        />
 
-      </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Ingresar Contraseña"
+          onChangeText={(texto) => setcontrasenia(texto)}
+          value={contrasenia}
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.btn} onPress={() => login()}>
+          <Text style={styles.textbutton}>INGRESAR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btn1}
+          onPress={() => navigation.navigate("Registro")}
+        >
+          <Text style={styles.textbutton}>REGISTRARME</Text>
+        </TouchableOpacity>
+      </KeyboardAwareScrollView>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1,
-    color:'white',
-    fontSize:20, 
-    alignItems:'center',
-    justifyContent:'center'
+  container: {
+    flex: 1,
+    alignItems: "center",
   },
 
   imgbackground: {
-    width: Dimensions .get("screen").width, //for full screen
+    width: Dimensions.get("screen").width, //for full screen
     height: Dimensions.get("screen").height, //for full screen
-    resizeMode:"cover",
+    resizeMode: "cover",
   },
   fixed: {
     position: "absolute",
@@ -106,26 +118,66 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  text:{
-    color:'white',
-    fontSize:20
+  btn: {
+    width: 100,
+    height: 40,
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 10,
+    backgroundColor: "rgb(89,166,98)",
+    justifyContent: "center",
+    borderRadius: 5,
   },
-
-  input:{
-    width: "80%",
+  btn1: {
+    width: 120,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 10,
+    backgroundColor: "#B0BF1A",
+    borderRadius: 5,
+  },
+  btn2: {
+    width: 100,
+    height: 40,
+    alignItems: "center",
+    verticalAlign: 'middle',
+    marginVertical: 10,
+    backgroundColor: "#f25022",
+    justifyContent: "center",
+    borderRadius: 5,
+  },
+  textbutton: {
+    fontSize: 15,
+    color: "white",
+    fontWeight: "bold",
+  },
+  titulo: {
+    marginTop: 230,
+    fontSize: 30,
+    /*fontWeight: "bold",*/
+    color: "#ffb900",
+    textAlign: "center",
+    marginBottom: 50,
+    fontFamily: "pixel",
+  },
+  input: {
+    width: "70%",
     height: 45,
     marginBottom: 30,
     borderRadius: 10,
-    fontSize: 18,
+    fontSize: 18, //TEXTO DENTRO DEL BOTON
     backgroundColor: "#eee",
     paddingLeft: 20,
   },
-
-  titulo: {
-    fontSize: 30,
-    textAlign: "center",
-    marginTop: 130,
-    marginBottom: 50,
-    color:'#ffb900'
-  }
+  keyboardContainer: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  keyboardContentContainer: {
+    //flex:1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 })
